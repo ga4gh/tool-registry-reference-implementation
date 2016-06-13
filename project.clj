@@ -1,23 +1,25 @@
 (defproject ga4gh/reference-api "0.0.1"
   :dependencies [
                  [dmohs/requests "0.0.1"]
-                 [org.clojure/clojure "1.7.0"] ; keep up-to-date with clojurescript dep
-                 [org.clojure/clojurescript "1.7.228"]
+                 [org.clojure/clojure "1.8.0"] ; keep up-to-date with clojurescript dep
+                 [org.clojure/clojurescript "1.9.36"]
                  ]
-  :plugins [[lein-cljsbuild "1.1.2"] [lein-figwheel "0.5.0-6"]]
+  :plugins [[lein-cljsbuild "1.1.3"] [lein-figwheel "0.5.0-6" :exclusions [org.clojure/clojure]]]
   :profiles {:dev {:cljsbuild
                    {:builds
                     {:client
-                     {:figwheel {:websocket-url ~(str "ws://server-figwheel:3449/figwheel-ws")}
-                      :compiler {:output-dir "target"
-                                 :output-to "target/main.js"
-                                 :source-map true}}}}}
-             :release {:cljsbuild
-                       {:builds
-                        {:client
-                         {:compiler {:output-dir "target"
-                                     :output-to "target/main.js"}}}}}}
-  :cljsbuild {:builds {:client {:source-paths ["src/cljs"]
+                     {:figwheel {:websocket-url ~(str "ws://server-builder:3449/figwheel-ws")}
+                      :compiler {:source-map true}}}}}
+             :test {:cljsbuild
+                    {:builds
+                     {:client
+                      {:source-paths ["src/cljs/test"]
+                       :figwheel {:websocket-url ~(str "ws://test-builder:3449/figwheel-ws")}
+                       :compiler {:main ga4gh.reference-api.main-test}}}}}}
+  :cljsbuild {:builds {:client {:source-paths ["src/cljs/core"]
                                 :compiler
                                 {:target :nodejs
-                                 :main ga4gh.reference-api.main}}}})
+                                 :output-dir "target"
+                                 :output-to "target/main.js"
+                                 :main ga4gh.reference-api.main
+                                 :optimizations :none}}}})

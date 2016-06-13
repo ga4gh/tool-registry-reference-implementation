@@ -12,7 +12,7 @@
     :name "wdl-workflow"
     :description "A workflow with a WDL descriptor."}])
 (def tool-data
-  [(let [namespace "dmohs_test"
+  [(let [namespace "dmohs-test"
          n "docker-test"
          url (str "http://ga4gh-api.broadinstitute.org/tools/" namespace "/" n)]
      {:global-id url ; -> url
@@ -56,6 +56,7 @@ workflow HTML_Report {
 
 (defn get-tool [ctx]
   (let [[id-string] (-> ctx :request :url-params)
+        id-string (js/decodeURIComponent id-string)
         tool (first (filter #(= (:registry-id %) id-string) tool-data))]
     (if tool
       (-> ctx

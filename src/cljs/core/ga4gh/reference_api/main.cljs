@@ -41,7 +41,7 @@
      (r/handle-url #"/commit-suicide" #{:post} commit-suicide)
      (r/handle-url #"/tools/([A-Za-z0-9_/-]+)/version/([A-Za-z0-9_/-]+)"
                    #{:get} tools/get-tool-version)
-     (r/handle-url #"/tools/([A-Za-z0-9_/-]+)" #{:get} tools/get-tool)
+     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_/-]+)" #{:get} tools/get-tool)
      r/respond-with-not-found)))
 
 
