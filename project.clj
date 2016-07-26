@@ -8,14 +8,8 @@
   :profiles {:dev {:cljsbuild
                    {:builds
                     {:client
-                     {:figwheel {:websocket-url ~(str "ws://server-builder:3449/figwheel-ws")}
-                      :compiler {:source-map true}}}}}
-             :test {:cljsbuild
-                    {:builds
-                     {:client
-                      {:source-paths ["src/cljs/test"]
-                       :figwheel {:websocket-url ~(str "ws://test-builder:3449/figwheel-ws")}
-                       :compiler {:main ga4gh.reference-api.main-test}}}}}}
+                     {:figwheel {:websocket-url "ws://ga4ghref-server-builder:3449/figwheel-ws"}
+                      :compiler {:source-map true}}}}}}
   :cljsbuild {:builds {:client {:source-paths ["src/cljs/core"]
                                 :compiler
                                 {:target :nodejs

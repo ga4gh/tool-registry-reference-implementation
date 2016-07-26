@@ -1,57 +1,21 @@
 (ns ga4gh.reference-api.tools
   (:require
    [cljs.nodejs :as nodejs]
+   [cljs.test :refer-macros [is]]
    [dmohs.requests :as r]
+   [ga4gh.reference-api.testing :refer-macros [defswaggertest]]
    [ga4gh.reference-api.utils :as u]
    ))
 
+(def fs (nodejs/require "fs"))
+(def yaml (nodejs/require "js-yaml"))
 
-(def org-name "Broad Institute")
-(def tool-types
-  [{:id "75015d4c-5001-41b6-937c-de58e0b7e42f"
-    :name "wdl-workflow"
-    :description "A workflow with a WDL descriptor."}])
+
 (def tool-data
-  [(let [namespace "dmohs-test"
-         n "docker-test"
-         url (str "http://ga4gh-api.broadinstitute.org/tools/" namespace "/" n)]
-     {:global-id url ; -> url
-      :registry-id (str namespace "/" n) ; -> id
-      :registry "docker.io"
-      :organization org-name
-      :name "ubuntu" ; -> image-name
-      :toolname "Ubuntu"
-      :tooltype (get tool-types 0)
-      :description "A simple workflow that produces some output."
-      :author "dmohs@broadinstitute.org"
-      :meta-version "1"
-      :versions [{:name "1"
-                  :global-id (str url "/1") ; -> url
-                  :registry-id "1" ; -> version-id
-                  :registry "docker.io"
-                  :image "ubuntu:latest"
-                  :descriptor {:descriptor "task echo_files {
-  File html_file
-  File image_file
-
-  output {
-    File out_html_file = \"out.html\"
-    File out_image_file = \"image.gif\"
-  }
-
-  command {
-    cp ${html_file} \"out.html\"
-    cp ${image_file} \"image.gif\"
-  }
-
-  runtime {
-    docker: \"ubuntu:latest\"
-  }
-}
-
-workflow HTML_Report {
-  call echo_files
-}"}}]})])
+  (let [yaml-string (.readFileSync fs "/etc/tool-data.yaml" "utf-8")
+        parsed (.load yaml yaml-string)
+        cljs (js->clj parsed :keywordize-keys true)]
+    (get cljs :tools)))
 
 
 (defn get-tool [ctx]
@@ -68,8 +32,16 @@ workflow HTML_Report {
           (r/respond)))))
 
 
+(defswaggertest get-tools-id
+  :get-tools-id
+  {:id (get-in tool-data [0 :registry-id])}
+  (fn [obj]
+    (is (= (obj "registry-id") (get-in tool-data [0 :registry-id])))))
+
+
 (defn get-tool-version [ctx]
-  (let [[id-string version-id-string] (-> ctx :request :url-params)
+  (let [params (-> ctx :request :url-params)
+        [id-string version-id-string] (map js/decodeURIComponent params)
         tool (first (filter #(= (:registry-id %) id-string) tool-data))
         version (first (filter #(= (:registry-id %) version-id-string) (:versions tool)))]
     (if version
@@ -80,3 +52,10 @@ workflow HTML_Report {
           (r/status-code 404)
           (r/json-body {:error :not-found :message "Tool version not found"})
           (r/respond)))))
+
+
+(defswaggertest get-tools-id-versions-version-id
+  :get-tools-id-versions-version-id
+  {:id (get-in tool-data [0 :registry-id]) :version-id (get-in tool-data [0 :versions 0 :name])}
+  (fn [obj]
+    (is (= (obj "name") (get-in tool-data [0 :versions 0 :name])))))

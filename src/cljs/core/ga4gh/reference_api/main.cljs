@@ -3,6 +3,8 @@
    [cljs.nodejs :as nodejs]
    [dmohs.requests :as r]
    [ga4gh.reference-api.tools :as tools]
+   [ga4gh.reference-api.test-data :as test-data]
+   [ga4gh.reference-api.testing :as testing]
    [ga4gh.reference-api.utils :as u]
    ))
 
@@ -39,7 +41,7 @@
      (r/handle-url #"/" #{:get :post} index)
      (r/handle-url #"/ping" #{:get} ping)
      (r/handle-url #"/commit-suicide" #{:post} commit-suicide)
-     (r/handle-url #"/tools/([A-Za-z0-9_/-]+)/version/([A-Za-z0-9_/-]+)"
+     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_/-]+)/versions/([%A-Za-z0-9_/-]+)"
                    #{:get} tools/get-tool-version)
      (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_/-]+)" #{:get} tools/get-tool)
      r/respond-with-not-found)))
@@ -50,9 +52,21 @@
 (reset! request-handler handle-request)
 
 
-(defn -main [& args]
-  (-> (.createServer http (fn [req res] (@request-handler req res)))
-      (.listen 80))
-  (println "Server running on port 80."))
+(defn -main [& [command]]
+  (if command
+    (cond
+      (= command "dump-sample-config")
+      (println (test-data/dump-to-yaml-string))
+      (= command "run-tests")
+      (testing/initialize #(cljs.test/run-tests 'ga4gh.reference-api.tools))
+      :else
+      (do
+        (println (str "Run without arguments to start the server. Run with dump-sample-config"
+                      " to dump the sample YAML configuration to stdout."))
+        (.exit js/process 1)))
+    (do
+      (-> (.createServer http (fn [req res] (@request-handler req res)))
+          (.listen 80))
+      (println "Server running on port 80."))))
 
 (set! *main-cli-fn* -main)
