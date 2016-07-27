@@ -1,10 +1,11 @@
 (ns ga4gh.reference-api.main
   (:require
    [cljs.nodejs :as nodejs]
+   [cljs.test :refer-macros [is]]
    [dmohs.requests :as r]
    [ga4gh.reference-api.tools :as tools]
    [ga4gh.reference-api.test-data :as test-data]
-   [ga4gh.reference-api.testing :as testing]
+   [ga4gh.reference-api.testing :refer-macros [defswaggertest] :as testing]
    [ga4gh.reference-api.utils :as u]
    ))
 
@@ -28,6 +29,15 @@
   ((or false nil) 17))
 
 
+(defn- get-metadata [ctx]
+  (-> ctx
+      (r/json-body
+       {:version "1"
+        :api-version "1"
+        :country "US"
+        :friendly-name "GA4GH Tools API Reference"})))
+
+
 (defn- handle-request [req res]
   (let [ctx (r/create-context req res)
         url (:url (:request ctx))
@@ -41,9 +51,20 @@
      (r/handle-url #"/" #{:get :post} index)
      (r/handle-url #"/ping" #{:get} ping)
      (r/handle-url #"/commit-suicide" #{:post} commit-suicide)
-     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_/-]+)/versions/([%A-Za-z0-9_/-]+)"
+     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_-]+)" #{:get} tools/get-tool)
+     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_-]+)/versions" #{:get} tools/get-tool-versions)
+     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_-]+)/versions/([%A-Za-z0-9_-]+)"
                    #{:get} tools/get-tool-version)
-     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_/-]+)" #{:get} tools/get-tool)
+     (r/handle-url #"/api/v1/tools" #{:get} tools/get-tools)
+     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_-]+)/versions/([%A-Za-z0-9_-]+)/([a-z]+)/descriptor"
+                   #{:get} tools/get-tool-descriptor)
+     (r/handle-url
+      #"/api/v1/tools/([%A-Za-z0-9_-]+)/versions/([%A-Za-z0-9_-]+)/([a-z]+)/descriptor/([%A-Za-z0-9_-]+)"
+      #{:get} tools/get-tool-descriptor-child)
+     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_-]+)/versions/([%A-Za-z0-9_-]+)/dockerfile"
+                   #{:get} tools/get-tool-version-dockerfile)
+     (r/handle-url #"/api/v1/metadata" #{:get} get-metadata)
+     (r/handle-url #"/api/v1/tool-types" #{:get} tools/get-tool-types)
      r/respond-with-not-found)))
 
 
@@ -58,7 +79,8 @@
       (= command "dump-sample-config")
       (println (test-data/dump-to-yaml-string))
       (= command "run-tests")
-      (testing/initialize #(cljs.test/run-tests 'ga4gh.reference-api.tools))
+      (testing/initialize
+       #(cljs.test/run-tests 'ga4gh.reference-api.main 'ga4gh.reference-api.tools))
       :else
       (do
         (println (str "Run without arguments to start the server. Run with dump-sample-config"
@@ -70,3 +92,10 @@
       (println "Server running on port 80."))))
 
 (set! *main-cli-fn* -main)
+
+
+(defswaggertest test-metadata
+  :get-metadata
+  {}
+  (fn [obj]
+    (is (= (obj "country") "US"))))

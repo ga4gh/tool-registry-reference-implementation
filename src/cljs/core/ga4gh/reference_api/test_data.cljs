@@ -8,32 +8,7 @@
 (def yaml (nodejs/require "js-yaml"))
 
 
-(def org-name "Acme Seqencing Corporation")
-(def tool-types
-  [{:id "75015d4c-5001-41b6-937c-de58e0b7e42f"
-    :name "wdl-workflow"
-    :description "A workflow with a WDL descriptor."}])
-(def tool-data
-  {:tools
-   [(let [namespace "acme"
-          n "loud-echo"
-          url (str "http://tool-registry.example.com/tools/" namespace "/" n)]
-      {:global-id url ; -> url
-       :registry-id (str namespace "/" n) ; -> id
-       :registry "docker.io"
-       :organization org-name
-       :name "ubuntu" ; -> image-name
-       :toolname "Ubuntu"
-       :tooltype (get tool-types 0)
-       :description "A simple workflow that produces some output."
-       :author "dmohs@broadinstitute.org"
-       :meta-version "1"
-       :versions [{:name "1"
-                   :global-id (str url "/1") ; -> url
-                   :registry-id "1" ; -> version-id
-                   :registry "docker.io"
-                   :image "ubuntu:latest"
-                   :descriptor {:descriptor "task echo_files {
+(def sample-wdl "task echo_files {
   File html_file
   File image_file
 
@@ -54,7 +29,38 @@
 
 workflow HTML_Report {
   call echo_files
-}"}}]})]})
+}")
+(def org-name "Acme Seqencing Corporation")
+(def tool-types
+  [{:id "75015d4c-5001-41b6-937c-de58e0b7e42f"
+    :name "workflow"
+    :description "A workflow."}])
+(def tool-data
+  {:tool-types tool-types
+   :tools
+   [(let [namespace "acme"
+          n "loud-echo"
+          url (str "http://tool-registry.example.com/tools/" namespace "/" n)]
+      {:global-id url ; -> url
+       :registry-id (str namespace "/" n) ; -> id
+       :registry "docker.io"
+       :organization org-name
+       :name "ubuntu" ; -> image-name
+       :toolname "Ubuntu"
+       :tooltype (get tool-types 0)
+       :description "A simple workflow that produces some output."
+       :author "dmohs@broadinstitute.org"
+       :meta-version "1"
+       :versions [{:name "1"
+                   :global-id (str url "/1") ; -> url
+                   :registry-id "1" ; -> version-id
+                   :registry "docker.io"
+                   :image "ubuntu:latest"
+                   :descriptors [{:type :wdl
+                                  :descriptor sample-wdl
+                                  :children [{:relative-path "extra" :type :wdl
+                                              :descriptor "workflow extra_workflow {}"}]}]
+                   :dockerfile {:dockerfile "FROM ubuntu"}}]})]})
 
 
 (defn dump-to-yaml-string []
