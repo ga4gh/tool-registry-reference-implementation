@@ -3,9 +3,14 @@ IFS=$'\n\t'
 set -euxo pipefail
 
 
-docker exec server-figwheel rm -rf /tmp/project-deploy
-docker exec server-figwheel mkdir /tmp/project-deploy
-COPYFILE_DISABLE=1 tar -c project.clj src/cljs | docker cp - server-figwheel:/tmp/project-deploy
-docker exec server-figwheel bash -c \
-  'cd /tmp/project-deploy; lein with-profile release cljsbuild once'
-docker cp server-figwheel:/tmp/project-deploy/target .
+CNAME="$(
+  docker create -w /w -v jars:/root/.m2 \
+  clojure \
+  lein cljsbuild once
+)"
+COPYFILE_DISABLE=1 tar -c project.clj src/cljs | docker cp - "$CNAME":/w
+docker start --attach "$CNAME"
+docker cp "$CNAME":/w/target .
+tar -cf target.tar target
+rm -rf target
+gzip target.tar

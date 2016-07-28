@@ -28,7 +28,7 @@
                       {:url yaml-url
                        :success (fn []
                                   (.setSchemes @client (clj->js ["http"]))
-                                  (.setHost @client "ga4ghref-server-dev")
+                                  (.setHost @client "localhost")
                                   (set! methods-root (.-GA4GH @client))
                                   ;; (.help methods-root)
                                   (when on-done
