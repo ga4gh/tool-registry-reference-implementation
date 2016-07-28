@@ -1,5 +1,8 @@
 FROM node:5
 
+ENV NODE_PATH=/usr/local/lib/node_modules
+RUN npm install -g js-yaml source-map-support swagger-client ws
+
 RUN true \
   && mkdir /app \
   && cd /app \
