@@ -79,14 +79,17 @@
       (= command "dump-sample-config")
       (println (test-data/dump-to-yaml-string))
       (= command "run-tests")
-      (testing/initialize
-       #(cljs.test/run-tests 'ga4gh.reference-api.main 'ga4gh.reference-api.tools))
+      (do
+        (tools/load-tool-data)
+        (testing/initialize
+         #(cljs.test/run-tests 'ga4gh.reference-api.main 'ga4gh.reference-api.tools)))
       :else
       (do
         (println (str "Run without arguments to start the server. Run with dump-sample-config"
                       " to dump the sample YAML configuration to stdout."))
         (.exit js/process 1)))
     (do
+      (tools/load-tool-data)
       (-> (.createServer http (fn [req res] (@request-handler req res)))
           (.listen 80))
       (println "Server running on port 80."))))

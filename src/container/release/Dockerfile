@@ -13,4 +13,6 @@ RUN true \
   && rm target.tar
 
 WORKDIR /app
-ENTRYPOINT node target/main.js
+ENTRYPOINT ["node", "target/main.js"]
+
+RUN node target/main.js dump-sample-config > /etc/tool-data.yaml

@@ -13,13 +13,16 @@
 
 
 (def tool-types nil)
-(def tool-data
+(def tool-data nil)
+
+
+(defn load-tool-data []
   (let [yaml-string (.readFileSync fs "/etc/tool-data.yaml" "utf-8")
         ;; yaml-string (test-data/dump-to-yaml-string)
         parsed (.load yaml yaml-string)
         cljs (js->clj parsed :keywordize-keys true)]
     (set! tool-types (get cljs :tool-types))
-    (get cljs :tools)))
+    (set! tool-data (get cljs :tools))))
 
 
 (defn get-tool [ctx]
