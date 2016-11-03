@@ -51,20 +51,20 @@
      (r/handle-url #"/" #{:get :post} index)
      (r/handle-url #"/ping" #{:get} ping)
      (r/handle-url #"/commit-suicide" #{:post} commit-suicide)
-     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_-]+)" #{:get} tools/get-tool)
-     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_-]+)/versions" #{:get} tools/get-tool-versions)
-     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_-]+)/versions/([%A-Za-z0-9_-]+)"
+     (r/handle-url #"/api/ga4gh/v1/tools/([%A-Za-z0-9_-]+)" #{:get} tools/get-tool)
+     (r/handle-url #"/api/ga4gh/v1/tools/([%A-Za-z0-9_-]+)/versions" #{:get} tools/get-tool-versions)
+     (r/handle-url #"/api/ga4gh/v1/tools/([%A-Za-z0-9_-]+)/versions/([%A-Za-z0-9_-]+)"
                    #{:get} tools/get-tool-version)
-     (r/handle-url #"/api/v1/tools" #{:get} tools/get-tools)
-     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_-]+)/versions/([%A-Za-z0-9_-]+)/([a-z]+)/descriptor"
+     (r/handle-url #"/api/ga4gh/v1/tools" #{:get} tools/get-tools)
+     (r/handle-url #"/api/ga4gh/v1/tools/([%A-Za-z0-9_-]+)/versions/([%A-Za-z0-9_-]+)/([a-z]+)/descriptor"
                    #{:get} tools/get-tool-descriptor)
      (r/handle-url
-      #"/api/v1/tools/([%A-Za-z0-9_-]+)/versions/([%A-Za-z0-9_-]+)/([a-z]+)/descriptor/([%A-Za-z0-9_-]+)"
+      #"/api/ga4gh/v1/tools/([%A-Za-z0-9_-]+)/versions/([%A-Za-z0-9_-]+)/([a-z]+)/descriptor/([%A-Za-z0-9_-]+)"
       #{:get} tools/get-tool-descriptor-child)
-     (r/handle-url #"/api/v1/tools/([%A-Za-z0-9_-]+)/versions/([%A-Za-z0-9_-]+)/dockerfile"
+     (r/handle-url #"/api/ga4gh/v1/tools/([%A-Za-z0-9_-]+)/versions/([%A-Za-z0-9_-]+)/dockerfile"
                    #{:get} tools/get-tool-version-dockerfile)
-     (r/handle-url #"/api/v1/metadata" #{:get} get-metadata)
-     (r/handle-url #"/api/v1/tool-types" #{:get} tools/get-tool-types)
+     (r/handle-url #"/api/ga4gh/v1/metadata" #{:get} get-metadata)
+     (r/handle-url #"/api/ga4gh/v1/tool-types" #{:get} tools/get-tool-types)
      r/respond-with-not-found)))
 
 
