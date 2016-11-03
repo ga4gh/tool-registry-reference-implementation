@@ -19,3 +19,11 @@ docker create --name ga4gh-ref-api-server -d -p 80:80 quay.io/ga4gh/ga4gh-tool-r
 docker cp my-tool-data.yaml ga4gh-ref-api-server:/etc/tool-data.yaml
 docker start ga4gh-ref-api-server
 ```
+
+## Building the Docker images
+
+Create the target.tar.gz that needs to be pointed at from the Dockerfile
+
+```bash
+bash src/container/release/build-release.sh
+```
